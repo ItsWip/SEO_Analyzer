@@ -1,0 +1,371 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>Competitor Analysis</h1>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-home me-2"></i>Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Results
+                </a>
+            </div>
+        </div>
+        
+        <p class="lead">
+            Comparing 
+            <a href="{{ results.url }}" target="_blank" class="text-break">{{ results.competitor_analysis.domains.main }}</a>
+            vs 
+            <a href="{{ results.competitor_url }}" target="_blank" class="text-break">{{ results.competitor_analysis.domains.competitor }}</a>
+        </p>
+    </div>
+</div>
+
+{% if results.competitor_analysis.get('error') %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Error performing competitor analysis: {{ results.competitor_analysis.error }}
+</div>
+{% else %}
+
+<!-- Score Comparison -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h2 class="h5 mb-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Performance Comparison</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="scoreComparisonChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Insights and Recommendations -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent">
+                <h2 class="h5 mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Competitive Insights</h2>
+            </div>
+            <div class="card-body">
+                {% if results.competitor_analysis.insights %}
+                    <ul class="list-group list-group-flush">
+                        {% for insight in results.competitor_analysis.insights %}
+                            <li class="list-group-item bg-transparent">
+                                <i class="fas fa-angle-right me-2 text-primary"></i>{{ insight }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No specific insights available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent">
+                <h2 class="h5 mb-0"><i class="fas fa-check-circle me-2 text-success"></i>Recommendations</h2>
+            </div>
+            <div class="card-body">
+                {% if results.competitor_analysis.recommendations %}
+                    <ul class="list-group list-group-flush">
+                        {% for rec in results.competitor_analysis.recommendations %}
+                            <li class="list-group-item bg-transparent">
+                                <i class="fas fa-check me-2 text-success"></i>{{ rec }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No specific recommendations available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Metrics Comparison -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-table me-2 text-info"></i>Detailed Metrics Comparison</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Your Website</th>
+                        <th>Competitor</th>
+                        <th>Comparison</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Word Count</td>
+                        <td>{{ results.competitor_analysis.word_counts.main }}</td>
+                        <td>{{ results.competitor_analysis.word_counts.competitor }}</td>
+                        <td>
+                            {% if results.competitor_analysis.word_counts.main > results.competitor_analysis.word_counts.competitor %}
+                                <span class="badge bg-success">+{{ results.competitor_analysis.word_counts.main - results.competitor_analysis.word_counts.competitor }}</span>
+                            {% elif results.competitor_analysis.word_counts.main < results.competitor_analysis.word_counts.competitor %}
+                                <span class="badge bg-danger">-{{ results.competitor_analysis.word_counts.competitor - results.competitor_analysis.word_counts.main }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Title Length</td>
+                        <td>{{ results.competitor_analysis.title_length.main }} chars</td>
+                        <td>{{ results.competitor_analysis.title_length.competitor }} chars</td>
+                        <td>
+                            {% if results.competitor_analysis.title_length.main > results.competitor_analysis.title_length.competitor %}
+                                <span class="badge bg-success">+{{ results.competitor_analysis.title_length.main - results.competitor_analysis.title_length.competitor }}</span>
+                            {% elif results.competitor_analysis.title_length.main < results.competitor_analysis.title_length.competitor %}
+                                <span class="badge bg-danger">-{{ results.competitor_analysis.title_length.competitor - results.competitor_analysis.title_length.main }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Meta Description Length</td>
+                        <td>{{ results.competitor_analysis.meta_desc_length.main }} chars</td>
+                        <td>{{ results.competitor_analysis.meta_desc_length.competitor }} chars</td>
+                        <td>
+                            {% if results.competitor_analysis.meta_desc_length.main > results.competitor_analysis.meta_desc_length.competitor %}
+                                <span class="badge bg-success">+{{ results.competitor_analysis.meta_desc_length.main - results.competitor_analysis.meta_desc_length.competitor }}</span>
+                            {% elif results.competitor_analysis.meta_desc_length.main < results.competitor_analysis.meta_desc_length.competitor %}
+                                <span class="badge bg-danger">-{{ results.competitor_analysis.meta_desc_length.competitor - results.competitor_analysis.meta_desc_length.main }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>H1 Headings</td>
+                        <td>{{ results.competitor_analysis.headings.main.h1 }}</td>
+                        <td>{{ results.competitor_analysis.headings.competitor.h1 }}</td>
+                        <td>
+                            {% if results.competitor_analysis.headings.main.h1 == 1 and results.competitor_analysis.headings.competitor.h1 != 1 %}
+                                <span class="badge bg-success">Optimal</span>
+                            {% elif results.competitor_analysis.headings.main.h1 != 1 and results.competitor_analysis.headings.competitor.h1 == 1 %}
+                                <span class="badge bg-danger">Needs Improvement</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>H2 Headings</td>
+                        <td>{{ results.competitor_analysis.headings.main.h2 }}</td>
+                        <td>{{ results.competitor_analysis.headings.competitor.h2 }}</td>
+                        <td>
+                            {% if results.competitor_analysis.headings.main.h2 > results.competitor_analysis.headings.competitor.h2 %}
+                                <span class="badge bg-success">+{{ results.competitor_analysis.headings.main.h2 - results.competitor_analysis.headings.competitor.h2 }}</span>
+                            {% elif results.competitor_analysis.headings.main.h2 < results.competitor_analysis.headings.competitor.h2 %}
+                                <span class="badge bg-danger">-{{ results.competitor_analysis.headings.competitor.h2 - results.competitor_analysis.headings.main.h2 }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Readability Score</td>
+                        <td>{{ results.competitor_analysis.readability.main }}</td>
+                        <td>{{ results.competitor_analysis.readability.competitor }}</td>
+                        <td>
+                            {% if results.competitor_analysis.readability.main > results.competitor_analysis.readability.competitor %}
+                                <span class="badge bg-success">+{{ (results.competitor_analysis.readability.main - results.competitor_analysis.readability.competitor) | round(1) }}</span>
+                            {% elif results.competitor_analysis.readability.main < results.competitor_analysis.readability.competitor %}
+                                <span class="badge bg-danger">-{{ (results.competitor_analysis.readability.competitor - results.competitor_analysis.readability.main) | round(1) }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Equal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Keyword Comparison -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-key me-2 text-warning"></i>Keyword Comparison</h2>
+    </div>
+    <div class="card-body">
+        {% if results.competitor_analysis.keyword_overlap %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Keyword</th>
+                            <th>Your Density</th>
+                            <th>Competitor Density</th>
+                            <th>Difference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for keyword in results.competitor_analysis.keyword_overlap %}
+                            <tr>
+                                <td>{{ keyword.keyword }}</td>
+                                <td>{{ keyword.main_density }}%</td>
+                                <td>{{ keyword.competitor_density }}%</td>
+                                <td>
+                                    {% if keyword.main_density >= keyword.competitor_density %}
+                                        <span class="badge bg-success">+{{ (keyword.main_density - keyword.competitor_density) | round(2) }}%</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">-{{ (keyword.competitor_density - keyword.main_density) | round(2) }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4">
+                <canvas id="keywordComparisonChart" height="250"></canvas>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No common keywords found between your website and the competitor.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if not results.competitor_analysis.get('error') %}
+        
+        // Performance Comparison Chart
+        const scoreCtx = document.getElementById('scoreComparisonChart').getContext('2d');
+        const scoreComparisonChart = new Chart(scoreCtx, {
+            type: 'bar',
+            data: {
+                labels: ['SEO Score', 'Content Score', 'Performance Score'],
+                datasets: [
+                    {
+                        label: 'Your Website',
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        data: [
+                            {{ results.competitor_analysis.seo_scores.main }},
+                            {{ results.competitor_analysis.content_scores.main }},
+                            {{ results.competitor_analysis.performance_scores.main if results.competitor_analysis.performance_scores.main else 0 }}
+                        ]
+                    },
+                    {
+                        label: 'Competitor',
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        data: [
+                            {{ results.competitor_analysis.seo_scores.competitor }},
+                            {{ results.competitor_analysis.content_scores.competitor }},
+                            {{ results.competitor_analysis.performance_scores.competitor if results.competitor_analysis.performance_scores.competitor else 0 }}
+                        ]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Score'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Performance Metrics Comparison'
+                    }
+                }
+            }
+        });
+        
+        {% if results.competitor_analysis.keyword_overlap %}
+        // Keyword Comparison Chart
+        const keywordCtx = document.getElementById('keywordComparisonChart').getContext('2d');
+        const keywordComparisonChart = new Chart(keywordCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    {% for keyword in results.competitor_analysis.keyword_overlap %}
+                        "{{ keyword.keyword }}",
+                    {% endfor %}
+                ],
+                datasets: [
+                    {
+                        label: 'Your Website',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        data: [
+                            {% for keyword in results.competitor_analysis.keyword_overlap %}
+                                {{ keyword.main_density }},
+                            {% endfor %}
+                        ]
+                    },
+                    {
+                        label: 'Competitor',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                        data: [
+                            {% for keyword in results.competitor_analysis.keyword_overlap %}
+                                {{ keyword.competitor_density }},
+                            {% endfor %}
+                        ]
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Keyword Density Comparison (%)'
+                    }
+                }
+            }
+        });
+        {% endif %}
+        
+        {% endif %}
+    });
+</script>
+{% endblock %}

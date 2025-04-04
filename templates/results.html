@@ -1,0 +1,445 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1>SEO Analysis Results</h1>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-redo me-2"></i>New Analysis
+            </a>
+        </div>
+        <p class="lead">
+            Analysis for <a href="{{ results.url }}" target="_blank" class="text-break">{{ results.url }}</a>
+            {% if results.competitor_url %}
+             | <a href="{{ url_for('competitor_analysis') }}" class="btn btn-sm btn-outline-info">
+                <i class="fas fa-chart-line me-2"></i>View Competitor Analysis
+               </a>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- Summary Scores -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Overall SEO Score</h5>
+                <div class="circular-progress mb-3 mx-auto" data-value="{{ results.basic_seo.overall_score / 5 * 100 }}">
+                    <div class="progress-value d-flex justify-content-center align-items-center">
+                        <h2>{{ results.basic_seo.overall_score }}</h2><span>/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Content Quality</h5>
+                <div class="circular-progress mb-3 mx-auto" data-value="{{ results.content_analysis.content_score / 5 * 100 }}">
+                    <div class="progress-value d-flex justify-content-center align-items-center">
+                        <h2>{{ results.content_analysis.content_score }}</h2><span>/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Page Performance</h5>
+                <div class="circular-progress mb-3 mx-auto" data-value="{{ results.speed_results.performance_score if results.speed_results.performance_score else 0 }}">
+                    <div class="progress-value d-flex justify-content-center align-items-center">
+                        <h2>{{ results.speed_results.performance_score if results.speed_results.performance_score else 'N/A' }}</h2>
+                        {% if results.speed_results.performance_score %}<span>/100</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Recommendations -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Key Recommendations</h2>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            {% if results.basic_seo.recommendations %}
+                {% for rec in results.basic_seo.recommendations[:3] %}
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-check-circle me-2 text-success"></i>{{ rec }}
+                    </li>
+                {% endfor %}
+            {% endif %}
+            
+            {% if results.content_analysis.recommendations %}
+                {% for rec in results.content_analysis.recommendations[:2] %}
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-check-circle me-2 text-success"></i>{{ rec }}
+                    </li>
+                {% endfor %}
+            {% endif %}
+            
+            {% if results.speed_results.opportunities %}
+                {% for opp in results.speed_results.opportunities[:2] %}
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-check-circle me-2 text-success"></i>{{ opp.title }}
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- On-Page SEO Analysis -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-search me-2 text-primary"></i>On-Page SEO Analysis</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Title Tag</h5>
+                <p class="text-break">{{ results.basic_seo.title.content }}</p>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="progress flex-grow-1 me-3" style="height: 10px;">
+                        <div class="progress-bar {{ 'bg-success' if results.basic_seo.title.score >= 4 else 'bg-warning' if results.basic_seo.title.score >= 2 else 'bg-danger' }}" 
+                            role="progressbar" 
+                            style="width: {{ results.basic_seo.title.score / 5 * 100 }}%;" 
+                            aria-valuenow="{{ results.basic_seo.title.score }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="5">
+                        </div>
+                    </div>
+                    <span class="badge bg-{{ 'success' if results.basic_seo.title.score >= 4 else 'warning' if results.basic_seo.title.score >= 2 else 'danger' }}">
+                        {{ results.basic_seo.title.score }}/5
+                    </span>
+                </div>
+                <p><small class="text-muted">{{ results.basic_seo.title.length }} characters</small></p>
+                {% if results.basic_seo.title.feedback %}
+                    <ul class="small">
+                        {% for fb in results.basic_seo.title.feedback %}
+                            <li>{{ fb }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h5>Meta Description</h5>
+                <p class="text-break">{{ results.basic_seo.meta_description.content }}</p>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="progress flex-grow-1 me-3" style="height: 10px;">
+                        <div class="progress-bar {{ 'bg-success' if results.basic_seo.meta_description.score >= 4 else 'bg-warning' if results.basic_seo.meta_description.score >= 2 else 'bg-danger' }}" 
+                            role="progressbar" 
+                            style="width: {{ results.basic_seo.meta_description.score / 5 * 100 }}%;" 
+                            aria-valuenow="{{ results.basic_seo.meta_description.score }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="5">
+                        </div>
+                    </div>
+                    <span class="badge bg-{{ 'success' if results.basic_seo.meta_description.score >= 4 else 'warning' if results.basic_seo.meta_description.score >= 2 else 'danger' }}">
+                        {{ results.basic_seo.meta_description.score }}/5
+                    </span>
+                </div>
+                <p><small class="text-muted">{{ results.basic_seo.meta_description.length }} characters</small></p>
+                {% if results.basic_seo.meta_description.feedback %}
+                    <ul class="small">
+                        {% for fb in results.basic_seo.meta_description.feedback %}
+                            <li>{{ fb }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Headings Structure</h5>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="progress flex-grow-1 me-3" style="height: 10px;">
+                        <div class="progress-bar {{ 'bg-success' if results.basic_seo.headings.score >= 4 else 'bg-warning' if results.basic_seo.headings.score >= 2 else 'bg-danger' }}" 
+                            role="progressbar" 
+                            style="width: {{ results.basic_seo.headings.score / 5 * 100 }}%;" 
+                            aria-valuenow="{{ results.basic_seo.headings.score }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="5">
+                        </div>
+                    </div>
+                    <span class="badge bg-{{ 'success' if results.basic_seo.headings.score >= 4 else 'warning' if results.basic_seo.headings.score >= 2 else 'danger' }}">
+                        {{ results.basic_seo.headings.score }}/5
+                    </span>
+                </div>
+                <ul>
+                    <li>H1: {{ results.basic_seo.headings.h1_count }}</li>
+                    <li>H2: {{ results.basic_seo.headings.h2_count }}</li>
+                    <li>H3: {{ results.basic_seo.headings.h3_count }}</li>
+                </ul>
+                {% if results.basic_seo.headings.h1_content %}
+                    <h6>Main Heading (H1)</h6>
+                    <ul class="small">
+                        {% for h1 in results.basic_seo.headings.h1_content %}
+                            <li class="text-break">{{ h1 }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if results.basic_seo.headings.feedback %}
+                    <ul class="small">
+                        {% for fb in results.basic_seo.headings.feedback %}
+                            <li>{{ fb }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h5>Links & Images</h5>
+                <ul>
+                    <li>Internal Links: {{ results.basic_seo.links.internal_count }}</li>
+                    <li>External Links: {{ results.basic_seo.links.external_count }}</li>
+                    <li>Total Images: {{ results.basic_seo.images.total_count }}</li>
+                    <li>Images Missing Alt Text: {{ results.basic_seo.images.missing_alt_count }}</li>
+                </ul>
+                <h5>Mobile Optimization</h5>
+                <p>
+                    Viewport Meta: 
+                    {% if results.basic_seo.mobile.has_viewport %}
+                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Present</span>
+                    {% else %}
+                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Missing</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Analysis -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-file-alt me-2 text-success"></i>Content Analysis</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Content Statistics</h5>
+                    <span class="badge bg-{{ 'success' if results.content_analysis.content_score >= 4 else 'warning' if results.content_analysis.content_score >= 2 else 'danger' }}">
+                        Score: {{ results.content_analysis.content_score }}/5
+                    </span>
+                </div>
+                <ul>
+                    <li>Word Count: {{ results.content_analysis.word_count }}</li>
+                    <li>Paragraphs: {{ results.content_analysis.paragraph_count }}</li>
+                    <li>Sentences: {{ results.content_analysis.sentence_count }}</li>
+                    <li>Readability: {{ results.content_analysis.readability.score }} 
+                        ({{ results.content_analysis.readability.level }})</li>
+                </ul>
+                
+                {% if results.content_analysis.feedback %}
+                    <h6>Content Feedback</h6>
+                    <ul class="small">
+                        {% for fb in results.content_analysis.feedback %}
+                            <li>{{ fb }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                {% if results.content_analysis.recommendations %}
+                    <h6>Content Recommendations</h6>
+                    <ul class="small">
+                        {% for rec in results.content_analysis.recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <h5>Keyword Analysis</h5>
+                {% if results.content_analysis.top_keywords %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Keyword</th>
+                                    <th>Count</th>
+                                    <th>Density</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for kw in results.content_analysis.top_keywords %}
+                                <tr>
+                                    <td>{{ kw.word }}</td>
+                                    <td>{{ kw.count }}</td>
+                                    <td>
+                                        {{ kw.density }}%
+                                        {% if kw.density > 4 %}
+                                            <i class="fas fa-exclamation-triangle text-warning" title="Possible keyword stuffing"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No keyword data available.</p>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <h5>Readability Score</h5>
+                    <div class="progress mb-2" style="height: 20px;">
+                        <div class="progress-bar {{ 'bg-success' if results.content_analysis.readability.score >= 70 else 'bg-warning' if results.content_analysis.readability.score >= 50 else 'bg-danger' }}" 
+                            role="progressbar" 
+                            style="width: {{ results.content_analysis.readability.score }}%;"
+                            aria-valuenow="{{ results.content_analysis.readability.score }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100">
+                            {{ results.content_analysis.readability.score }}/100
+                        </div>
+                    </div>
+                    <p class="small text-muted">
+                        {{ results.content_analysis.readability.level }} - 
+                        {% if results.content_analysis.readability.score >= 70 %}
+                        Your content is easy to read for most audiences.
+                        {% elif results.content_analysis.readability.score >= 50 %}
+                        Your content is moderately difficult to read.
+                        {% else %}
+                        Your content may be too difficult for the average reader.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Speed Analysis -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent">
+        <h2 class="h5 mb-0"><i class="fas fa-tachometer-alt me-2 text-danger"></i>Page Speed Analysis</h2>
+    </div>
+    <div class="card-body">
+        {% if not results.speed_results.get('error') %}
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Performance Score</h5>
+                    <div class="position-relative" style="width: 150px; height: 150px;">
+                        <canvas id="performanceChart"></canvas>
+                        <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <h3 class="mb-0">{{ results.speed_results.performance_score }}</h3>
+                            <small>/100</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5>Core Web Vitals</h5>
+                    <ul>
+                        <li>First Contentful Paint: {{ results.speed_results.first_contentful_paint.value }}</li>
+                        <li>Largest Contentful Paint: {{ results.speed_results.largest_contentful_paint.value }}</li>
+                        <li>Cumulative Layout Shift: {{ results.speed_results.cumulative_layout_shift.value }}</li>
+                        <li>Time to Interactive: {{ results.speed_results.time_to_interactive.value }}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Improvement Opportunities</h5>
+                    {% if results.speed_results.opportunities %}
+                        <ul class="list-group">
+                            {% for opp in results.speed_results.opportunities %}
+                                <li class="list-group-item bg-transparent">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">{{ opp.title }}</h6>
+                                        <span class="badge bg-{{ 'success' if opp.score >= 90 else 'warning' if opp.score >= 50 else 'danger' }}">
+                                            {{ opp.score }}/100
+                                        </span>
+                                    </div>
+                                    <small>{{ opp.description }}</small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No specific opportunities identified.</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h5>Passed Audits</h5>
+                    {% if results.speed_results.passed_audits %}
+                        <ul class="list-group">
+                            {% for audit in results.speed_results.passed_audits %}
+                                <li class="list-group-item bg-transparent">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-0">{{ audit.title }}</h6>
+                                        <span class="badge bg-success">{{ audit.score }}/100</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No passed audits available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Could not retrieve page speed data: {{ results.speed_results.error }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize circular progress bars
+        const circularProgressBars = document.querySelectorAll('.circular-progress');
+        circularProgressBars.forEach(function(progressBar) {
+            const value = progressBar.getAttribute('data-value');
+            progressBar.style.background = `conic-gradient(
+                var(--bs-primary) ${value}%, 
+                var(--bs-dark) ${value}%
+            )`;
+        });
+        
+        // Performance Score Chart
+        {% if results.speed_results.performance_score %}
+        const performanceScore = {{ results.speed_results.performance_score }};
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [performanceScore, 100 - performanceScore],
+                    backgroundColor: [
+                        performanceScore >= 90 ? '#28a745' : performanceScore >= 50 ? '#ffc107' : '#dc3545',
+                        'rgba(0, 0, 0, 0.1)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '80%',
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: false
+                    }
+                }
+            }
+        });
+        {% endif %}
+    });
+</script>
+{% endblock %}

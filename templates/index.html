@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+                <h1 class="text-center mb-4">
+                    <i class="fas fa-search me-2"></i>SEO Analyzer Tool
+                </h1>
+                <p class="text-center lead mb-4">
+                    Analyze your website's SEO performance and get actionable recommendations to improve your rankings.
+                </p>
+
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('analyze') }}" method="post" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="url" class="form-label">Website URL to analyze</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                            <input type="url" class="form-control form-control-lg" id="url" name="url" 
+                                   placeholder="https://example.com" required
+                                   pattern="^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$">
+                        </div>
+                        <div class="form-text">Enter a full URL including https:// (e.g., https://example.com)</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="competitor_url" class="form-label">Competitor URL (optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user-secret"></i></span>
+                            <input type="url" class="form-control" id="competitor_url" name="competitor_url" 
+                                   placeholder="https://competitor.com"
+                                   pattern="^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$">
+                        </div>
+                        <div class="form-text">Compare your site with a competitor (optional)</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>Analyze Website
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon my-3">
+                            <i class="fas fa-search fa-3x text-primary"></i>
+                        </div>
+                        <h3>On-Page SEO Analysis</h3>
+                        <p>Analyze title tags, meta descriptions, headings, and content structure.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon my-3">
+                            <i class="fas fa-tachometer-alt fa-3x text-primary"></i>
+                        </div>
+                        <h3>Technical SEO</h3>
+                        <p>Check page speed, mobile-friendliness, and technical factors affecting rankings.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="feature-icon my-3">
+                            <i class="fas fa-chart-bar fa-3x text-primary"></i>
+                        </div>
+                        <h3>Competitor Analysis</h3>
+                        <p>Compare your site with competitors to find opportunities for improvement.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">How It Works</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center mb-3">
+                            <div class="step-circle">1</div>
+                            <h5 class="mt-3">Enter URL</h5>
+                            <p>Provide your website address for analysis</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center mb-3">
+                            <div class="step-circle">2</div>
+                            <h5 class="mt-3">Analyze</h5>
+                            <p>Our tool scans your website for SEO factors</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center mb-3">
+                            <div class="step-circle">3</div>
+                            <h5 class="mt-3">Review Results</h5>
+                            <p>See detailed analysis and scores</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center mb-3">
+                            <div class="step-circle">4</div>
+                            <h5 class="mt-3">Take Action</h5>
+                            <p>Follow recommendations to improve rankings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        
+        // Fetch all forms we want to apply validation to
+        var forms = document.querySelectorAll('.needs-validation')
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}
