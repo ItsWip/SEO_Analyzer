@@ -1,0 +1,97 @@
+/* Custom styles for SEO Analyzer */
+
+/* Circular progress bar */
+.circular-progress {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.progress-value {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: var(--bs-dark);
+    font-weight: bold;
+}
+
+.progress-value h2 {
+    margin-bottom: 0;
+    font-size: 2.5rem;
+}
+
+.progress-value span {
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+/* Steps styling */
+.step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin: 0 auto;
+}
+
+/* Feature icons */
+.feature-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Card hover effect */
+.card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Status colors */
+.text-good {
+    color: var(--bs-success);
+}
+
+.text-warning {
+    color: var(--bs-warning);
+}
+
+.text-danger {
+    color: var(--bs-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .circular-progress {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .progress-value h2 {
+        font-size: 2rem;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
